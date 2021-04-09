@@ -1,4 +1,4 @@
-#!usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 # @Time : 2021/4/7 9:12
 # @File : 爬取知乎热榜前50BeautifulSoup.py

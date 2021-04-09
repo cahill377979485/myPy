@@ -1,4 +1,4 @@
-#!usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 # @Time : 2021/4/6 15:51
 # @File : paqutupian.py

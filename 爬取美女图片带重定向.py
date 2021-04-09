@@ -1,7 +1,7 @@
-#!usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 # @Time : 2021/4/7 11:45
-# @File : 爬取美女图片.py
+# @File : 爬取美女图片带重定向.py
 # @Author: 希尔
 import urllib.request
 import re
@@ -10,9 +10,9 @@ import urllib
 import time
 import random
 
-pages = 2
+pages = 5
 time_start = time.time()
-path = 'E:\\myPy\\{0}{1}'.format(time.strftime('%Y-%m-%d', time.localtime()), '美女图片2')  # 设置图片的保存地址
+path = 'E:\\myPy\\{0}{1}'.format(time.strftime('%Y-%m-%d', time.localtime()), '美女图片')  # 设置图片的保存地址
 x = 1  # 声明一个变量记录当前的图片脚标
 
 
@@ -36,7 +36,6 @@ def handle_img_list(html):
                           'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36')]
     urllib.request.install_opener(opener)
     for img_url in img_list:
-
         absolute_path = '{0}{1}.jpg'.format(paths, x)
         if os.path.isfile(absolute_path):  # 如果已经有同名文件则跳过
             x = x + 1

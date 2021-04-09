@@ -1,4 +1,4 @@
-#!usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 # 使用BeautifulSoup4来获取数据
 from bs4 import BeautifulSoup
