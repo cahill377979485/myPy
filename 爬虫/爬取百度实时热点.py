@@ -24,9 +24,9 @@ if __name__ == '__main__':
     html_str = response.content.decode('gb2312')  # utf-8无法解析
     html = etree.HTML(html_str)
     # print('网页源码：%s' % html_str)
-    result = html.xpath("//table[@class='list-table']/tr")
+    resultDelta = html.xpath("//table[@class='list-table']/tr")
     listBean = []
-    for table in result:
+    for table in resultDelta:
         rank = table.xpath(".//td[@class='first']/span[1]/text()")
         if len(rank) != 1:  # 有部分td是非新闻条目，所以需要判断一下rank为空就跳过
             continue

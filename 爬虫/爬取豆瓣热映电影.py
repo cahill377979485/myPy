@@ -13,10 +13,10 @@ if __name__ == '__main__':
     print('网页源码：%s' % html_str)
 
     # 获取知乎热榜排名标题热度
-    result = html.xpath("//div[@class='s']/div[@class='screening-bd']/ul")
-    print('result.len=%d' % len(result))
-    print(result)
-    for table in result:  # 不知道为啥，可能是数据结构的问题，第一次取出来就得到了所有的内容
+    resultDelta = html.xpath("//div[@class='s']/div[@class='screening-bd']/ul")
+    print('result.len=%d' % len(resultDelta))
+    print(resultDelta)
+    for table in resultDelta:  # 不知道为啥，可能是数据结构的问题，第一次取出来就得到了所有的内容
         title = table.xpath(".//li/@data-title")
         pic = table.xpath(".//li/ul/li[@class='poster']/a/img/@src")
         href = table.xpath(".//li/ul/li[@class='poster']/a/@href")
