@@ -7,7 +7,7 @@ https://www.w3school.com.cn/xpath/xpath_syntax.asp
 XPath 使用路径表达式来选取 XML 文档中的节点或节点集。节点是通过沿着路径 (path) 或者步 (steps) 来选取的。
 
 XML 实例文档
-我们将在下面的例子中使用这个 XML 文档。
+我们将在下面的例子中使用这个 XML 文档资料。
 
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
