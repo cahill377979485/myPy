@@ -10,7 +10,7 @@ import urllib
 import time
 import random
 
-pages = 5
+pages = 11
 time_start = time.time()
 path = 'E:\\myPy\\{0}{1}'.format(time.strftime('%Y-%m-%d', time.localtime()), '美女图片')  # 设置图片的保存地址
 x = 1  # 声明一个变量记录当前的图片脚标
