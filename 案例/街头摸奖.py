@@ -6,6 +6,8 @@
 import random
 import time
 
+# 如果是不放回（即一次性直接拿出来两个球）：两球都是白球的概率等于C32/C62=(3*2)/(2*1)/(6*5)/(2*1)=3/15=1/5
+# 如果是有放回（即拿完之后放回去再拿一个）：两球都是白球的概率等于C31*C31/C61*C61=(3*3)/(6*6)=1/4
 win = 0
 lose = 0
 box = ('白1', '白2', '白3', '黑4', '黑5', '黑6')
@@ -14,6 +16,10 @@ start_time = time.time()  # 注意计时 代码放的位置
 for i in range(z):
     x = random.randint(0, 5)
     y = random.randint(0, 5)
+
+    # while y == x:  # 这一步是表示不放回拿取
+    #     y = random.randint(0, 5)
+
     a = box[x]
     b = box[y]
     #     print(a,b)
