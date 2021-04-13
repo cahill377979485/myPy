@@ -21,7 +21,7 @@ if __name__ == '__main__':
         'Referer': 'https://www.baidu.com/link?url=Di5vYWlTOHiDSnTHsNWbYz-12Z-UlPs4tkB5FHhtYQGzZCY3DPTedfwsM--j8uXm&wd=&eqid=a5c8245d0000366c0000000260656b82'
     }
     response = requests.get(url, headers=headers)
-    json = response.content.decode('gb2312')
+    json = response.content.decode('gbk')
     soup = BeautifulSoup(json, 'html.parser')
     print(soup.prettify())  # 打印获取到的网页源码
     listNum = []
