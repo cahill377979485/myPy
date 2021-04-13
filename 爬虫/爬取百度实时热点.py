@@ -21,7 +21,7 @@ if __name__ == '__main__':
         'Referer': 'https://www.baidu.com/link?url=Di5vYWlTOHiDSnTHsNWbYz-12Z-UlPs4tkB5FHhtYQGzZCY3DPTedfwsM--j8uXm&wd=&eqid=a5c8245d0000366c0000000260656b82'
     }
     response = requests.get(url, headers=headers)
-    html_str = response.content.decode('gb2312')  # utf-8无法解析
+    html_str = response.content.decode('gbk')  # utf-8无法解析
     html = etree.HTML(html_str)
     # print('网页源码：%s' % html_str)
     resultDelta = html.xpath("//table[@class='list-table']/tr")
