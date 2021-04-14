@@ -1,17 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
-# @Time : 2021/4/13 17:46
-# @File : 爬取妹子图片.py
+# @Time : 2021/4/14 11:03
+# @File : 通用图片爬虫.py
 # @Author:
 
-import requests
-from bs4 import BeautifulSoup
-import random  # 导入random包
+import re
 import os
+import time
 import threading
+import requests
+import random
 
 
-def ua_list():  # 定义一个随机UA的子程序
+class Command(object):
+
+    def __init__(self, name, url, reg, use_headers=False):
+        self.name = name
+        self.url = url
+        self.reg = reg
+        self.use_headers = use_headers
+
+
+def get_headers_with_random_ua():  # 定义一个随机UA的子程序
     headers_list = [  # 定义一个UA列表，UA可以在百度搜索到
         "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; AcooBrowser; .NET CLR 1.1.4322; .NET CLR 2.0.50727)",
         "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Acoo Browser; SLCC1; .NET CLR 2.0.50727; Media Center PC 5.0; .NET CLR 3.0.04506)",
@@ -52,34 +62,61 @@ def ua_list():  # 定义一个随机UA的子程序
     return headers
 
 
-def get_html(page, the_path, the_semaphore):  # 爬取写在这个子程序中,传入的这个page参数是在多线程中传过来的
+def get_path_mid(path_name):
+    return '{0}{1}{2}'.format('E:\\myPy\\', time.strftime('%Y-%m-%d', time.localtime()), path_name)
+
+
+def get_res_code(the_command, the_semaphore):
     the_semaphore.acquire()
-    url = f'https://www.mzitu.com/page/{page}/'
-    headers = ua_list()  # 从ua_list子程序中随机选择个UA传入
-    html = requests.get(url=url, headers=headers)  # 访问这个网站
-    # print(html.text)
-    soup = BeautifulSoup(html.text, 'lxml')  # bs4解析
-    results = soup.select('ul#pins li a img')
-    for result in results:
-        print(result['data-original'])
-        title = result['alt']
-        img = result['data-original']
-        with open(f'{the_path}{title}.jpg', 'wb') as file_data:
-            print("正在下载图片")
-            file_data.write(requests.get(img).content)
-    print(f"第{page}页图片下载完成")
+    if the_command.use_headers:
+        res_code = requests.get(the_command.url, headers=get_headers_with_random_ua()).text
+    else:
+        res_code = requests.get(the_command.url).text
+    print('获取到的网页源码为：\n%s' % res_code)
+    img_list = re.compile(the_command.reg).findall(res_code)
+    size = len(img_list)
+    print('通过正则表达式共找到%d张图片' % size)
+    x = 1  # 声明一个变量赋值
+    path_mid = get_path_mid(the_command.name)
+    if not os.path.isdir(path_mid):
+        print('创建保存资源的文件夹路径')
+        os.makedirs(path_mid)  # 判断没有此路径则创建
+    path_final = path_mid + '\\'
+    time_start = time.time()
+    for img_url in img_list:
+        print('正在下载第%d张/%d 用时%s' % (x, size, time.time() - time_start))
+        absolute_path = '{0}{1}.jpg'.format(path_final, x)
+        if os.path.isfile(absolute_path):
+            x = x + 1
+            continue
+        try:
+            with open(f'{absolute_path}', 'wb') as file_data:
+                print("正在下载图片")
+                file_data.write(requests.get(img_url).content)
+        except Exception as e:
+            print('第%d张/%d出错，原因是：%s' % (x, size, e.__cause__))
+        finally:
+            x = x + 1
+    print('图片下载完成，注意查看文件夹%s 用时%s' % (path_final, time.time() - time_start))
+    print(img_list)
     the_semaphore.release()
 
 
-if __name__ == "__main__":
-    path = "E:\\myPy\\meizitu"
-    if not os.path.exists(path):  # 判断一下这个目录下有没有meizitu这个文件夹
-        os.mkdir(path)  # 没有的话就创建，到时候图片存储在这个文件夹下
-    semaphore = threading.BoundedSemaphore(5)  # 最多同时允许五个线程同时运行
-    for i in range(20):  # 这里你可以改for i in range(数值,数值）
-        t = threading.Thread(target=get_html, args=(i, path, semaphore))
-        t.start()
+if __name__ == '__main__':
+    command_list = [
+        Command('站酷总榜前100项目图片',
+                'https://www.zcool.com.cn/top/index.do',
+                r'(?<=src=")https://img\.zcool\.cn.{40,42}\.jpg'),
+        Command('站酷最近APP设计项目图片',
+                'https://www.zcool.com.cn/discover.json?cate=17&subCate=757&hasVideo=0&city=0&college=0&recom',
+                r'(?<=cover\":\")https://img\.zcool\.cn.{40,41}\.jpg(?=")')
+    ]
+    # 选择要执行的命令
+    command = command_list[0]
+    semaphore = threading.BoundedSemaphore(5)
+    t = threading.Thread(target=get_res_code, args=(command, semaphore))
+    t.start()
     while threading.active_count() != 1:
         pass
     else:
-        print("全部图片下载完毕")
+        print('全部图片下载完毕')
