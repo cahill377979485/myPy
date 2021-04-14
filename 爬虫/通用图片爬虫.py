@@ -109,7 +109,7 @@ if __name__ == '__main__':
                 r'(?<=src=")https://img\.zcool\.cn.{40,42}\.jpg'),
         Command('站酷最近APP设计项目图片',
                 'https://www.zcool.com.cn/discover.json?cate=17&subCate=757&hasVideo=0&city=0&college=0&recom',
-                r'(?<=cover\":\")https:\/\/img\.zcool\.cn.{40,41}\.jpg(?=")')
+                r'(?<=cover\":\")https://img\.zcool\.cn.{40,41}\.jpg(?=")')
     ]
     # 选择要执行的命令
     command = command_list[0]
