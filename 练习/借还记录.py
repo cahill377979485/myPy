@@ -43,15 +43,19 @@ def handle_data():
             if start_sum == 0:
                 start_sum = int(item[2]) - item[1]
     print('20210101时的总额是%d' % start_sum)
-    # print(data_2021)
+    print(data_2021)
     # 20210101开始计算利息，并将每日利息加入总额中，起始总额是88165
+    # 先取list_rate的第一个，如果跟list_date的第一个日期一样，则将list_date的第一个的money加上得到当天的总额，再乘以list_rate
+    # 的万份收益率再除以1万。算出当天的收益（相当于利息），再加上总额，得到当天结束时的本息。然后将list_date去除头元素（用
+    # pop(0)方法即可)。这样下次判断比较方便。最终可以得到当前甚至未来某一天的本息总额。
     for item in rate:
         pass
 
+
     # 将数据生成图
-    df = pd.DataFrame(data, columns=['日期', '借出', '总额'])
-    df.plot()
-    plt.show()
+    # df = pd.DataFrame(data, columns=['日期', '借出', '总额'])
+    # df.plot()
+    # plt.show()
     # 根据计算总值
 
 
