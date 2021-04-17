@@ -72,7 +72,7 @@ def get_html(page, the_path, the_semaphore):  # 爬取写在这个子程序中,�
 
 
 if __name__ == "__main__":
-    path = "E:\\myPy\\meizitu"
+    path = "E:\\myPy\\meizitu\\"
     if not os.path.exists(path):  # 判断一下这个目录下有没有meizitu这个文件夹
         os.mkdir(path)  # 没有的话就创建，到时候图片存储在这个文件夹下
     semaphore = threading.BoundedSemaphore(5)  # 最多同时允许五个线程同时运行

@@ -26,14 +26,14 @@ class GetEveryDay(object):
 def handle_data():
     data = []
     rate = []
-    with open(r'D:\myWork\myPy\借还记录\records.txt', 'r') as file:
+    with open(r'D:\myPy\借还记录\records.txt', 'r') as file:
         my_sum = 0
         for line in file.readlines():
             x, y = line.split('	')
             my_sum -= int(y)
             data.append(Record(int(x), -int(y), my_sum))
 
-    with open(r'D:\myWork\myPy\借还记录\余额宝每日万份收益.txt', 'r') as file:
+    with open(r'D:\myPy\借还记录\余额宝每日万份收益.txt', 'r') as file:
         for line in file.readlines():
             x, y = line.split(' ')
             rate.insert(0, GetEveryDay(int(x.replace('-', '')), float(y)))

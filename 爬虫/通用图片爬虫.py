@@ -112,8 +112,8 @@ if __name__ == '__main__':
                 r'(?<=cover\":\")https://img\.zcool\.cn.{40,41}\.jpg(?=")')
     ]
     # 选择要执行的命令
-    command = command_list[0]
-    semaphore = threading.BoundedSemaphore(5)
+    command = command_list[1]
+    semaphore = threading.BoundedSemaphore(8)
     t = threading.Thread(target=get_res_code, args=(command, semaphore))
     t.start()
     while threading.active_count() != 1:

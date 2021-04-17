@@ -37,7 +37,7 @@ def query():
         list_bean.append(Bean(item['FSRQ'], item['DWJZ']))
     for item in list_bean:
         print('%s %f' % (item.date, float(item.get)))
-    with open('E:\\myPy\\余额宝每日万份收益.txt', 'w+') as file:
+    with open(r'D:\myPy\借还记录\余额宝每日万份收益.txt', 'w+') as file:
         for item in list_bean:
             file.write('%s %f\n' % (item.date, float(item.get)))
 
