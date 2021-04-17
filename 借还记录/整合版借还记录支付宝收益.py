@@ -14,21 +14,11 @@ import warnings
 import pandas as pd
 
 
-list_bean = []
-
-
 class Record(object):
 
     def __init__(self, date, money, the_sum):
         self.date = date
         self.money = money
-        self.the_sum = the_sum
-
-
-class SumRecord(object):
-
-    def __init__(self, date, the_sum):
-        self.date = date
         self.the_sum = the_sum
 
 
@@ -48,46 +38,35 @@ def get_gain_every_day():
         'Referer': 'http://fundf10.eastmoney.com/jjjz_000198.html'
     }
     response = requests.get(url, headers=headers).text
-    # print(response)
     start = response.find(r'(')
     end = response.find(r')')
     final_response = response[start + 1:end]
-    # print(final_response)
     dicts = json.loads(final_response)
-    # print(dicts)
-    global list_bean
+    list_bean = []
     for item in dicts['Data']['LSJZList']:
         list_bean.append(GetEveryDay(item['FSRQ'], item['DWJZ']))
-    # for item in list_bean:
-    #     print('%s %f' % (item.date, float(item.get)))
-    # with open(r'D:\myPy\借还记录\余额宝每日万份收益.txt', 'w+') as file:
-    #     for item in list_bean:
-    #         file.write('%s %f\n' % (item.date, float(item.get)))
+    return list_bean
 
 
 def handle_data():
-    get_gain_every_day()
-    data = []
     rate = []
+    for bean in get_gain_every_day():
+        rate.insert(0, GetEveryDay(int(bean.date.replace('-', '')), float(bean.gain)))
+    data = []
     with open(r'D:\myPy\借还记录\records.txt', 'r') as file:
-        my_sum = 0
+        temp_sum = 0
         for line in file.readlines():
             x, y = line.split('	')
-            my_sum -= int(y)
-            data.append(Record(int(x), -int(y), my_sum))
-
-    for bean in list_bean:
-        rate.insert(0, GetEveryDay(int(bean.date.replace('-', '')), float(bean.gain)))
-
-    # print(rate)
+            temp_sum -= int(y)
+            data.append(Record(int(x), -int(y), temp_sum))
     # 取出2021年开始的记录
     data_2021 = []
     start_sum = 0
-    for item in data:
-        if item.date > 20210101:  # 2021年开始起算
-            data_2021.append(item)
+    for d in data:
+        if d.date > 20210101:  # 2021年开始起算
+            data_2021.append(d)
             if start_sum == 0:
-                start_sum = item.the_sum - item.money
+                start_sum = d.the_sum - d.money
     print('20210101时的总额是%d' % start_sum)
     the_sum = start_sum
     # 因为第一天存的，需要经过第二天的运作才能产生收益，所以将data的数据的日期进行改动，将money>0的日期加一，money<0的日期不变。
@@ -100,7 +79,7 @@ def handle_data():
                     break
                 if r.date == d.date:
                     reset_date = True
-    data_final = []
+    list_sum = []
     # 根据最新的数据进行累计每天的本金加收益
     for r in rate:
         money = 0
@@ -111,15 +90,14 @@ def handle_data():
         the_gain = (the_sum + money) * (r.gain / 10000)
         the_sum = (the_sum + money) + the_gain
         print('%s的总额为：%f，当天收益为%f' % (r.date, the_sum, the_gain))
-        data_final.append(the_sum)
-
+        list_sum.append(the_sum)
     # 输出结果
     last_data = data[len(data) - 1]
     print('计算收益前：%s的总额为%f' % (last_data.date, last_data.the_sum))
     print('计算收益后：%s的总额为%f' % (rate[len(rate) - 1].date, the_sum))
     print('计算收益后：%s的收益为%f' % (rate[len(rate) - 1].date, the_sum - last_data.the_sum))
     # 将数据生成图
-    df = pd.DataFrame(data_final, columns=['总额'])
+    df = pd.DataFrame(list_sum, columns=['总额'])
     df.plot()
     plt.show()
 
