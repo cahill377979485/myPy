@@ -39,7 +39,7 @@ def get_gain_every_day():
     date_start = '2016-02-01'
     date_yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     with open(r'D:\myPy\借还记录\余额宝每日万份收益.txt', 'r') as file:
-        if file.readline().__contains__(date_yesterday):
+        if file.readlines()[0].__contains__(date_yesterday):
             for line in file.readlines():
                 arr = line.split(' ')
                 list_bean.append(Gain(arr[0], arr[1]))
