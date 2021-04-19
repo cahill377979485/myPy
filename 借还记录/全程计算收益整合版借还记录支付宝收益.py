@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 # @Time:2021/4/17 9:51
-# @File:整合版借还记录支付宝收益.py
+# @File:全程计算收益整合版借还记录支付宝收益.py
 # @Author:希尔
 # @Email:377979485@qq.com
-# @Desc:
+# @Desc:优化点
+# 1、获取余额宝收益信息增加本地缓存，如果发现今天已经有数据了就不需要从接口获取，直接从本地文件中获取数据。
+# 2、增加可设置开始计算收益的时间。
+# 3、增加无收益时的曲线和有收益的曲线，方便对比。
+
 import json
 
 import requests
@@ -30,9 +34,9 @@ class Gain(object):
 
 
 def get_gain_every_day():
-    date_start = '2021-01-01'
+    date_start = '2016-02-01'
     date_today = time.strftime('%Y-%m-%d', time.localtime())
-    url = f'http://api.fund.eastmoney.com/f10/lsjz?callback=jQuery183023336459069593007_1618390055881&fundCode=000198&pageIndex=1&pageSize=200&startDate={date_start}&endDate={date_today}&_=1618390082880'
+    url = f'http://api.fund.eastmoney.com/f10/lsjz?callback=jQuery183023336459069593007_1618390055881&fundCode=000198&pageIndex=1&pageSize=2000&startDate={date_start}&endDate={date_today}&_=1618390082880'
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36 SE 2.X MetaSr 1.0',
         'Referer': 'http://fundf10.eastmoney.com/jjjz_000198.html'
@@ -71,18 +75,8 @@ def handle_data():
                 # print('%d的记录进行了整合' % temp_date)
             else:
                 data.append(Record(int(x), -int(y), temp_sum))
-    # 取出2021年开始的记录
-    data_2021 = []
-    start_sum = 0
-    for d in data:
-        if d.date > 20210101:  # 2021年开始起算
-            data_2021.append(d)
-            if start_sum == 0:
-                start_sum = d.the_sum - d.money
-    print('20210101时的总额是%d' % start_sum)
-    the_sum = start_sum
     # 因为第一天存的，需要经过第二天的运作才能产生收益，所以将data的数据的日期进行改动，将money>0的日期加一，money<0的日期不变。
-    for d in data_2021:
+    for d in data:
         if d.money > 0:
             reset_date = False
             for r in rate:
@@ -91,13 +85,14 @@ def handle_data():
                     break
                 if r.date == d.date:
                     reset_date = True
+    # 根据最新的数据进行累计每天的本金加收益
     list_sum = []
     ori_sum = 0
     index = 0
-    # 根据最新的数据进行累计每天的本金加收益
+    the_sum = 0
     for r in rate:
         money = 0
-        for d in data_2021:
+        for d in data:
             if d.date == r.date:
                 money = d.money
                 ori_sum = d.the_sum

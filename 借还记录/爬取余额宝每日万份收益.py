@@ -17,9 +17,9 @@ class Bean(object):
 
 
 def query():
-    date_start = '2021-01-01'
+    date_start = '2016-02-01'
     date_today = time.strftime('%Y-%m-%d', time.localtime())
-    url = f'http://api.fund.eastmoney.com/f10/lsjz?callback=jQuery183023336459069593007_1618390055881&fundCode=000198&pageIndex=1&pageSize=200&startDate={date_start}&endDate={date_today}&_=1618390082880'
+    url = f'http://api.fund.eastmoney.com/f10/lsjz?callback=jQuery183023336459069593007_1618390055881&fundCode=000198&pageIndex=1&pageSize=2000&startDate={date_start}&endDate={date_today}&_=1618390082880'
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36 SE 2.X MetaSr 1.0',
         'Referer': 'http://fundf10.eastmoney.com/jjjz_000198.html'
