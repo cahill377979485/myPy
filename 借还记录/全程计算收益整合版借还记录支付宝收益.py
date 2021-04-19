@@ -12,10 +12,11 @@
 import json
 
 import requests
-import time
+import datetime
 import matplotlib.pyplot as plt
 import warnings
 import pandas as pd
+import numpy as np
 
 
 class Record(object):
@@ -34,21 +35,32 @@ class Gain(object):
 
 
 def get_gain_every_day():
-    date_start = '2016-02-01'
-    date_today = time.strftime('%Y-%m-%d', time.localtime())
-    url = f'http://api.fund.eastmoney.com/f10/lsjz?callback=jQuery183023336459069593007_1618390055881&fundCode=000198&pageIndex=1&pageSize=2000&startDate={date_start}&endDate={date_today}&_=1618390082880'
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36 SE 2.X MetaSr 1.0',
-        'Referer': 'http://fundf10.eastmoney.com/jjjz_000198.html'
-    }
-    response = requests.get(url, headers=headers).text
-    start = response.find(r'(')
-    end = response.find(r')')
-    final_response = response[start + 1:end]
-    dicts = json.loads(final_response)
     list_bean = []
-    for item in dicts['Data']['LSJZList']:
-        list_bean.append(Gain(item['FSRQ'], item['DWJZ']))
+    date_start = '2016-02-01'
+    date_yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    with open(r'D:\myPy\借还记录\余额宝每日万份收益.txt', 'r') as file:
+        if file.readline().__contains__(date_yesterday):
+            for line in file.readlines():
+                arr = line.split(' ')
+                list_bean.append(Gain(arr[0], arr[1]))
+        else:
+            url = f'http://api.fund.eastmoney.com/f10/lsjz?callback=jQuery183023336459069593007_1618390055881&fundCode=000198&pageIndex=1&pageSize=2000&startDate={date_start}&endDate={date_yesterday}&_=1618390082880'
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36 SE 2.X MetaSr 1.0',
+                'Referer': 'http://fundf10.eastmoney.com/jjjz_000198.html'
+            }
+            response = requests.get(url, headers=headers).text
+            start = response.find(r'(')
+            end = response.find(r')')
+            final_response = response[start + 1:end]
+            dicts = json.loads(final_response)
+            for item in dicts['Data']['LSJZList']:
+                list_bean.append(Gain(item['FSRQ'], item['DWJZ']))
+            with open(r'D:\myPy\借还记录\余额宝每日万份收益.txt', 'w+') as f:
+                for item in list_bean:
+                    f.write('%s %f\n' % (item.date, float(item.gain)))
+                f.close()
+        file.close()
     return list_bean
 
 
@@ -87,6 +99,7 @@ def handle_data():
                     reset_date = True
     # 根据最新的数据进行累计每天的本金加收益
     list_sum = []
+    list_ori_sum = []
     ori_sum = 0
     index = 0
     the_sum = 0
@@ -101,6 +114,7 @@ def handle_data():
         the_sum = (the_sum + money) + the_gain
         index += 1
         print('%d、%s的总额为：%f，当天收益为%f 原总额为%f 借出%d ' % (index, r.date, the_sum, the_gain, ori_sum, money))
+        list_ori_sum.append(ori_sum)
         list_sum.append(the_sum)
     # 输出结果
     last_data = data[len(data) - 1]
@@ -108,7 +122,11 @@ def handle_data():
     print('计算收益后：%s的总额为%f' % (rate[len(rate) - 1].date, the_sum))
     print('计算收益后：%s的收益为%f' % (rate[len(rate) - 1].date, the_sum - last_data.the_sum))
     # 将数据生成图
-    df = pd.DataFrame(list_sum, columns=['总额'])
+    list_df = []
+    for i in range(len(list_ori_sum)):
+        list_df.append([list_ori_sum[i], list_sum[i]])
+    np1 = np.array(list_df)
+    df = pd.DataFrame(np1, columns=['原总额', '新总额'])
     df.plot()
     plt.show()
 
