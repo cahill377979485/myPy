@@ -37,6 +37,9 @@ class Gain(object):
 
 def get_gain_every_day():
     list_bean = []
+    date_start = '2016-02-01'
+    date_yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    file_name = r'D:\myPy\借还记录\余额宝每日万份收益.txt'
 
     # 内部方法，需放在方法调取之前，不然不能使用：从网站下载
     def get_from_net():
@@ -52,16 +55,14 @@ def get_gain_every_day():
         dicts = json.loads(final_response)
         for item in dicts['Data']['LSJZList']:
             list_bean.append(Gain(item['FSRQ'], item['DWJZ']))
-        with open(path, 'w+') as f:
+        with open(file_name, 'w+') as f:
             for item in list_bean:
                 f.write('%s %f\n' % (item.date, float(item.gain)))
             f.close()
-
-    date_start = '2016-02-01'
-    date_yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-    path = r'D:\myPy\借还记录\余额宝每日万份收益.txt'
-    if os.path.exists(path):
-        with open(path, 'r') as file:
+    #  如果本地有每日收益文件则打开文件，如果文件包含昨天的数据则直接解析数据集合。
+    #  如果本地没有每日收益文件或者文件不包含昨天的数据则通过网站下载最新的数据。并以最新的数据来生成集合并保存到本地。
+    if os.path.exists(file_name):
+        with open(file_name, 'r') as file:
             lines = file.readlines()
             if lines[0].__contains__(date_yesterday):
                 for line in lines:
@@ -79,7 +80,7 @@ def handle_data():
     # 获取每日收益率
     rate = []
     for bean in get_gain_every_day():
-        rate.insert(0, Gain(int(bean.date.replace('-', '')), float(bean.gain)))
+        rate.insert(0, Gain(int(bean.date.replace('-', '')), float(bean.gain)))  # 倒序插入
     # 获取借还记录
     data = []
     path = r'D:\myPy\借还记录\records.txt'
