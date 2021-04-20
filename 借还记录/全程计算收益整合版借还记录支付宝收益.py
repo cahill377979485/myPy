@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import warnings
 import pandas as pd
 import numpy as np
+import os
 
 
 class Record(object):
@@ -36,58 +37,73 @@ class Gain(object):
 
 def get_gain_every_day():
     list_bean = []
+
+    # 内部方法，需放在方法调取之前，不然不能使用：从网站下载
+    def get_from_net():
+        url = f'http://api.fund.eastmoney.com/f10/lsjz?callback=jQuery183023336459069593007_1618390055881&fundCode=000198&pageIndex=1&pageSize=2000&startDate={date_start}&endDate={date_yesterday}&_=1618390082880'
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36 SE 2.X MetaSr 1.0',
+            'Referer': 'http://fundf10.eastmoney.com/jjjz_000198.html'
+        }
+        response = requests.get(url, headers=headers).text
+        start = response.find(r'(')
+        end = response.find(r')')
+        final_response = response[start + 1:end]
+        dicts = json.loads(final_response)
+        for item in dicts['Data']['LSJZList']:
+            list_bean.append(Gain(item['FSRQ'], item['DWJZ']))
+        with open(path, 'w+') as f:
+            for item in list_bean:
+                f.write('%s %f\n' % (item.date, float(item.gain)))
+            f.close()
+
     date_start = '2016-02-01'
     date_yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
-    with open(r'D:\myPy\借还记录\余额宝每日万份收益.txt', 'r') as file:
-        lines = file.readlines()
-        if lines[0].__contains__(date_yesterday):
-            for line in lines:
-                arr = line.split(' ')
-                list_bean.append(Gain(arr[0], arr[1]))
-        else:
-            url = f'http://api.fund.eastmoney.com/f10/lsjz?callback=jQuery183023336459069593007_1618390055881&fundCode=000198&pageIndex=1&pageSize=2000&startDate={date_start}&endDate={date_yesterday}&_=1618390082880'
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36 SE 2.X MetaSr 1.0',
-                'Referer': 'http://fundf10.eastmoney.com/jjjz_000198.html'
-            }
-            response = requests.get(url, headers=headers).text
-            start = response.find(r'(')
-            end = response.find(r')')
-            final_response = response[start + 1:end]
-            dicts = json.loads(final_response)
-            for item in dicts['Data']['LSJZList']:
-                list_bean.append(Gain(item['FSRQ'], item['DWJZ']))
-            with open(r'D:\myPy\借还记录\余额宝每日万份收益.txt', 'w+') as f:
-                for item in list_bean:
-                    f.write('%s %f\n' % (item.date, float(item.gain)))
-                f.close()
-        file.close()
+    path = r'D:\myPy\借还记录\余额宝每日万份收益.txt'
+    if os.path.exists(path):
+        with open(path, 'r') as file:
+            lines = file.readlines()
+            if lines[0].__contains__(date_yesterday):
+                for line in lines:
+                    arr = line.split(' ')
+                    list_bean.append(Gain(arr[0], arr[1]))
+            else:
+                get_from_net()
+            file.close()
+    else:
+        get_from_net()
     return list_bean
 
 
 def handle_data():
+    # 获取每日收益率
     rate = []
     for bean in get_gain_every_day():
         rate.insert(0, Gain(int(bean.date.replace('-', '')), float(bean.gain)))
+    # 获取借还记录
     data = []
-    with open(r'D:\myPy\借还记录\records.txt', 'r') as file:
-        temp_sum = 0
-        for line in file.readlines():
-            x, y = line.split('	')
-            temp_date = int(x)
-            temp_money = -int(y)
-            temp_sum += temp_money
-            latest_index = len(data) - 1
-            if latest_index >= 0:
-                data_last = data[latest_index]
-            else:
-                data_last = None
-            if data_last is not None and data_last.date == temp_date:  # 如果是同一天的记录则整合起来
-                data[latest_index].money = data_last.money + temp_money
-                data[latest_index].the_sum = data_last.the_sum + temp_money
-                # print('%d的记录进行了整合' % temp_date)
-            else:
-                data.append(Record(int(x), -int(y), temp_sum))
+    path = r'D:\myPy\借还记录\records.txt'
+    if os.path.exists(path):
+        with open(path, 'r') as file:
+            temp_sum = 0
+            for line in file.readlines():
+                x, y = line.split('	')
+                temp_date = int(x)
+                temp_money = -int(y)
+                temp_sum += temp_money
+                latest_index = len(data) - 1
+                if latest_index >= 0:
+                    data_last = data[latest_index]
+                else:
+                    data_last = None
+                if data_last is not None and data_last.date == temp_date:  # 如果是同一天的记录则整合起来
+                    data[latest_index].money = data_last.money + temp_money
+                    data[latest_index].the_sum = data_last.the_sum + temp_money
+                    # print('%d的记录进行了整合' % temp_date)
+                else:
+                    data.append(Record(int(x), -int(y), temp_sum))
+    else:
+        raise IOError('找不到借还记录文件：%s' % path)
     # 因为第一天存的，需要经过第二天的运作才能产生收益，所以将data的数据的日期进行改动，将money>0的日期加一，money<0的日期不变。
     for d in data:
         if d.money > 0:
