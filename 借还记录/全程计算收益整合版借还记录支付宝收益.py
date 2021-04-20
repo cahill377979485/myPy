@@ -120,6 +120,7 @@ def handle_data():
     ori_sum = 0
     index = 0
     the_sum = 0
+    start_date = 0  # 20201225
     for r in rate:
         money = 0
         for d in data:
@@ -127,8 +128,12 @@ def handle_data():
                 money = d.money
                 ori_sum = d.the_sum
                 break
-        the_gain = (the_sum + money) * (r.gain / 10000)
-        the_sum = (the_sum + money) + the_gain
+        the_gain = 0
+        if r.date >= start_date:
+            the_gain = (the_sum + money) * (r.gain / 10000)
+            the_sum = (the_sum + money) + the_gain
+        else:
+            the_sum = ori_sum
         index += 1
         print('%d、%s的总额为：%f，当天收益为%f 原总额为%f 借出%d ' % (index, r.date, the_sum, the_gain, ori_sum, money))
         list_ori_sum.append(ori_sum)
@@ -143,7 +148,7 @@ def handle_data():
     for i in range(len(list_ori_sum)):
         list_df.append([list_ori_sum[i], list_sum[i]])
     np1 = np.array(list_df)
-    df = pd.DataFrame(np1, columns=['原总额', '新总额'])
+    df = pd.DataFrame(np1, columns=['未加收益总额', '增加收益总额'])
     df.plot()
     plt.show()
 
