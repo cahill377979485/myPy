@@ -39,8 +39,9 @@ def get_gain_every_day():
     date_start = '2016-02-01'
     date_yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     with open(r'D:\myPy\借还记录\余额宝每日万份收益.txt', 'r') as file:
-        if file.readlines()[0].__contains__(date_yesterday):
-            for line in file.readlines():
+        lines = file.readlines()
+        if lines[0].__contains__(date_yesterday):
+            for line in lines:
                 arr = line.split(' ')
                 list_bean.append(Gain(arr[0], arr[1]))
         else:
@@ -117,10 +118,10 @@ def handle_data():
         list_ori_sum.append(ori_sum)
         list_sum.append(the_sum)
     # 输出结果
-    last_data = data[len(data) - 1]
+    last_data = data[-1]
     print('计算收益前：%s的总额为%f' % (last_data.date, last_data.the_sum))
-    print('计算收益后：%s的总额为%f' % (rate[len(rate) - 1].date, the_sum))
-    print('计算收益后：%s的收益为%f' % (rate[len(rate) - 1].date, the_sum - last_data.the_sum))
+    print('计算收益后：%s的总额为%f' % (rate[-1].date, the_sum))
+    print('计算收益后：%s的收益为%f' % (rate[-1].date, the_sum - last_data.the_sum))
     # 将数据生成图
     list_df = []
     for i in range(len(list_ori_sum)):
