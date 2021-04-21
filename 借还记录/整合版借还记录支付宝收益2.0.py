@@ -141,10 +141,11 @@ def handle_data():
         list_ori_sum.append(ori_sum)
         list_sum.append(the_sum)
     # 输出结果
-    last_data = data[-1]
-    print('计算收益前：%s的总额为%f' % (last_data.date, last_data.the_sum))
+    print('计算收益前：%s的总额为%f' % (rate[-1].date, ori_sum))  # 这里避免今日新增减的影响，所以直接用rate.date，而不是最后一个data的date
     print('计算收益后：%s的总额为%f' % (rate[-1].date, the_sum))
-    print('计算收益后：%s的收益为%f' % (rate[-1].date, the_sum - last_data.the_sum))
+    print('计算收益后：%s的收益为%f' % (rate[-1].date, the_sum - ori_sum))
+    if data[-1].date > rate[-1].date:
+        print('还有%s的记录未参与计算' % data[-1].date)
     # 将数据生成图
     list_df = []
     for i in range(len(list_ori_sum)):
