@@ -59,6 +59,7 @@ def get_gain_every_day():
             for item in list_bean:
                 f.write('%s %f\n' % (item.date, float(item.gain)))
             f.close()
+
     #  如果本地有每日收益文件则打开文件，如果文件包含昨天的数据则直接解析数据集合。
     #  如果本地没有每日收益文件或者文件不包含昨天的数据则通过网站下载最新的数据。并以最新的数据来生成集合并保存到本地。
     if os.path.exists(file_name):
@@ -148,10 +149,10 @@ def handle_data():
     list_df = []
     for i in range(len(list_ori_sum)):
         list_df.append([list_ori_sum[i], list_sum[i]])
-    np1 = np.array(list_df)
-    df = pd.DataFrame(np1, columns=['未加收益总额', '增加收益总额'])
+    df = pd.DataFrame(np.array(list_df), columns=['未加收益总额', '增加收益总额'])
     df.plot()
     plt.show()
+    df.to_csv('整合版借还记录支付宝收益.csv')
 
 
 if __name__ == '__main__':
