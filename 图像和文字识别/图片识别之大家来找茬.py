@@ -9,6 +9,6 @@ img2 = Image.open(path + '2.jpg')
 out = ImageChops.difference(img1, img2)
 print(out)
 img = np.array(out)  # 将图片的矩阵数据用数组装起来
-print(img)
+# print(img)
 plt.imshow(img)
 plt.show()
