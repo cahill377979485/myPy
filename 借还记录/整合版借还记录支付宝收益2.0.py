@@ -122,7 +122,7 @@ def handle_data():
     ori_sum = 0
     index = 0
     the_sum = 0
-    start_date = 0  # 20201225
+    start_date = 20201225  # 20201225
     for r in rate:
         money = 0
         for d in data:
