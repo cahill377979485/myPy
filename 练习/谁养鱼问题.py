@@ -86,7 +86,7 @@ def check(hom, cou, dri, cig, pet):
     if abs(cig.find("币") - pet.find("猫")) != 1:
         return False
     # 养马人的人住在D牌香烟的隔壁
-    if abs(pet.find("马") - cig.index("地")) != 1:
+    if abs(pet.find("马") - cig.find("地")) != 1:
         return False
     if dri[cig.find("并")] != "酒":
         return False
