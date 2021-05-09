@@ -43,7 +43,7 @@ def get_gain_every_day():
 
     # 内部方法，需放在方法调取之前，不然不能使用：从网站下载
     def get_from_net():
-        url = f'http://api.fund.eastmoney.com/f10/lsjz?callback=jQuery183023336459069593007_1618390055881&fundCode=000198&pageIndex=1&pageSize=2000&startDate={date_start}&endDate={date_yesterday}&_=1618390082880'
+        url = f'http://api.fund.eastmoney.com/f10/lsjz?callback=jQuery183023336459069593007_1618390055881&fundCode=000198&pageIndex=1&pageSize=3000&startDate={date_start}&endDate={date_yesterday}&_=1618390082880'
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.81 Safari/537.36 SE 2.X MetaSr 1.0',
             'Referer': 'http://fundf10.eastmoney.com/jjjz_000198.html'
@@ -117,6 +117,8 @@ def handle_data():
                 if r.date == d.date:
                     reset_date = True
     # 根据最新的数据进行累计每天的本金加收益
+    list_date = []
+    list_gain = []
     list_sum = []
     list_ori_sum = []
     ori_sum = 0
@@ -138,6 +140,8 @@ def handle_data():
             the_sum = ori_sum
         index += 1
         print('%d、%s的总额为：%f，当天收益为%f 原总额为%f 借出%d ' % (index, r.date, the_sum, the_gain, ori_sum, money))
+        list_date.append(r.date)
+        list_gain.append(the_gain)
         list_ori_sum.append(ori_sum)
         list_sum.append(the_sum)
     # 输出结果
@@ -148,12 +152,15 @@ def handle_data():
         print('还有%s的记录未参与计算' % data[-1].date)
     # 将数据生成图
     list_df = []
+    list_df2 = []
     for i in range(len(list_ori_sum)):
         list_df.append([list_ori_sum[i], list_sum[i]])
+        list_df2.append([list_date[i], list_ori_sum[i], list_gain[i], list_sum[i]])
     df = pd.DataFrame(np.array(list_df), columns=['未加收益总额', '增加收益总额'])
     df.plot()
     plt.show()
-    df.to_csv('整合版借还记录支付宝收益.csv')
+    df2 = pd.DataFrame(np.array(list_df2), columns=['日期', '未加收益总额', '当天收益', '增加收益总额'])
+    df2.to_csv('整合版借还记录支付宝收益.csv')
 
 
 if __name__ == '__main__':
