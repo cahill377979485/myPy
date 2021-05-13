@@ -33,7 +33,7 @@ if __name__ == '__main__':
     for item in soup.findAll('div', class_='HotItem-index'):
         r = item.div.get_text()
         if int(r) < 10:  # 不足10的补齐前面的零
-            r = '0' + r
+            r = ' ' + r
         listRank.append(r)
     for item in soup.findAll('div', class_='HotItem-content'):
         listTitle.append(item.a['title'])
